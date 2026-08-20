@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#060812">
+  <meta name="description" content="Currency Converter Pro：自動抓取最新匯率的純 HTML 貨幣轉換器">
+  <title>Currency Converter Pro｜全球匯率，精準轉換</title>
+  <style>
+    /*
+      Design philosophy: Glassmorphism Elegance / premium dark fintech utility.
+      Deep navy depth, emerald data accents, structured panels, and precise copy.
+    */
+    :root {
+      --bg: #060812;
+      --bg-soft: #0b1020;
+      --panel: rgba(22, 27, 39, .78);
+      --panel-strong: rgba(27, 33, 48, .9);
+      --line: rgba(148, 163, 184, .18);
+      --line-strong: rgba(148, 163, 184, .3);
+      --text: #f8fafc;
+      --muted: #9aa8bd;
+      --muted-strong: #c6d0df;
+      --blue: #5b8cff;
+      --blue-soft: rgba(91, 140, 255, .14);
+      --green: #6ee7b7;
+      --green-strong: #10b981;
+      --green-soft: rgba(16, 185, 129, .14);
+      --amber: #fbbf24;
+      --danger: #fda4af;
+      --radius: 22px;
+      --shadow: 0 24px 80px rgba(0, 0, 0, .26);
+    }
+
+    * { box-sizing: border-box; }
+    html { min-width: 320px; scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 74% 0%, rgba(16, 185, 129, .09), transparent 30rem),
+        radial-gradient(circle at 0% 18%, rgba(91, 140, 255, .1), transparent 26rem),
+        linear-gradient(145deg, #060812 0%, #080b14 55%, #0a0f1d 100%);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .16;
+      background-image: linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+      background-size: 42px 42px;
+      mask-image: linear-gradient(to bottom, black, transparent 78%);
+    }
+
+    button, input, select { font: inherit; }
+    button, select { cursor: pointer; }
+    button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
+
+    .shell { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 1px solid rgba(148, 163, 184, .14);
+      background: rgba(6, 8, 18, .8);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+    .topbar-inner { min-height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    .brand { display: inline-flex; align-items: center; gap: 12px; color: var(--text); text-decoration: none; }
+    .brand-mark { width: 38px; height: 38px; display: block; }
+    .brand-title { font-weight: 760; letter-spacing: -.035em; line-height: 1.05; }
+    .brand-subtitle { margin-top: 4px; font-size: 10px; letter-spacing: .22em; text-transform: uppercase; color: #76849b; }
+
+    .button {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      min-height: 42px;
+      padding: 0 14px;
+      color: var(--muted-strong);
+      background: rgba(255, 255, 255, .045);
+      transition: transform .16s ease, background .2s ease, border-color .2s ease, color .2s ease;
+    }
+    .button:hover { transform: translateY(-1px); background: rgba(255,255,255,.09); border-color: var(--line-strong); color: var(--text); }
+    .button:active { transform: scale(.97); }
+    .button:disabled { cursor: wait; opacity: .55; transform: none; }
+    .button-icon { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+    .button-icon svg { width: 17px; height: 17px; }
+    .button-primary { border-color: rgba(110, 231, 183, .3); background: var(--green-soft); color: var(--green); }
+    .button-primary:hover { border-color: rgba(110, 231, 183, .5); background: rgba(16,185,129,.22); color: #b7f7db; }
+
+    main { padding: 60px 0 72px; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 9px; color: var(--green); font-size: 12px; font-weight: 750; letter-spacing: .22em; text-transform: uppercase; }
+    .eyebrow::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 18px rgba(110,231,183,.9); }
+    h1, h2, h3, p { margin: 0; }
+    .hero { max-width: 770px; margin-bottom: 38px; }
+    h1 { margin-top: 19px; font-size: clamp(42px, 6vw, 72px); line-height: 1.03; letter-spacing: -.065em; font-weight: 800; }
+    .accent { color: var(--green); }
+    .hero-copy { max-width: 680px; margin-top: 20px; color: var(--muted-strong); font-size: 17px; line-height: 1.85; }
+
+    .alert { display: none; align-items: flex-start; gap: 12px; margin: 0 0 22px; padding: 15px 17px; border: 1px solid rgba(251,191,36,.28); border-radius: 16px; color: #fde68a; background: rgba(251,191,36,.1); line-height: 1.55; font-size: 14px; }
+    .alert.visible { display: flex; }
+    .alert strong { display: block; color: #fef3c7; }
+    .alert small { display: block; margin-top: 3px; color: rgba(254,243,199,.68); }
+
+    .layout { display: grid; grid-template-columns: minmax(0, 1.28fr) minmax(300px, .72fr); gap: 26px; align-items: start; }
+    .stack { display: grid; gap: 26px; }
+    .card { position: relative; overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius); background: linear-gradient(145deg, rgba(26,31,45,.88), rgba(16,20,31,.79)); box-shadow: var(--shadow); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
+    .card::after { content: ""; position: absolute; pointer-events: none; width: 220px; height: 220px; right: -90px; top: -120px; border-radius: 50%; background: rgba(16,185,129,.11); filter: blur(36px); }
+    .card-pad { padding: 30px; }
+    .card-header { position: relative; z-index: 1; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 27px; }
+    .kicker { color: #8f9db3; font-size: 11px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; }
+    h2 { margin-top: 8px; font-size: 25px; letter-spacing: -.035em; }
+    h3 { font-size: 19px; letter-spacing: -.025em; }
+    .status { flex: none; padding: 7px 11px; border: 1px solid rgba(110,231,183,.28); border-radius: 999px; background: var(--green-soft); color: var(--green); font-size: 12px; font-weight: 700; }
+    .status.loading { color: #fcd34d; border-color: rgba(251,191,36,.25); background: rgba(251,191,36,.1); }
+
+    .converter-row { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 15px; align-items: end; }
+    .field { min-width: 0; }
+    label { display: block; margin-bottom: 9px; color: #9aa8bd; font-size: 11px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; }
+    .input, .select { width: 100%; height: 64px; border: 1px solid rgba(148,163,184,.16); border-radius: 13px; padding: 0 16px; color: var(--text); background: rgba(4,7,15,.42); transition: border-color .2s ease, background .2s ease, box-shadow .2s ease; }
+    .input { font-size: 25px; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+    .input::placeholder { color: #59677c; }
+    .input:focus, .select:focus { border-color: rgba(110,231,183,.55); background: rgba(4,7,15,.65); box-shadow: 0 0 0 4px rgba(16,185,129,.08); outline: none; }
+    .result { display: flex; align-items: center; height: 64px; padding: 0 16px; border: 1px solid rgba(110,231,183,.22); border-radius: 13px; color: var(--green); background: rgba(16,185,129,.11); font-size: 25px; letter-spacing: -.03em; font-variant-numeric: tabular-nums; overflow: hidden; }
+    .swap { width: 44px; height: 44px; margin-bottom: 10px; padding: 0; border-radius: 50%; border: 1px solid rgba(110,231,183,.28); color: var(--green); background: rgba(16,185,129,.1); }
+    .swap:hover { background: rgba(16,185,129,.22); }
+    .swap svg { width: 17px; height: 17px; }
+    .selectors { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 17px; }
+    .select { height: 50px; font-size: 14px; appearance: none; background-image: linear-gradient(45deg, transparent 50%, #8a97aa 50%), linear-gradient(135deg, #8a97aa 50%, transparent 50%); background-position: calc(100% - 18px) 21px, calc(100% - 13px) 21px; background-size: 5px 5px, 5px 5px; background-repeat: no-repeat; padding-right: 34px; }
+    .select option { color: #0f172a; background: #fff; }
+    .rate-line { display: flex; justify-content: space-between; gap: 15px; margin-top: 25px; padding-top: 17px; border-top: 1px solid rgba(148,163,184,.15); color: #bac5d4; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 13px; }
+    .rate-line strong { color: var(--green); font-weight: 600; }
+    .rate-line time { color: #728098; font-family: inherit; font-size: 11px; }
+    .copy-line { display: flex; justify-content: flex-end; margin-top: 13px; }
+    .copy-button { min-height: 32px; padding: 0 10px; border-radius: 8px; color: #8ea0b7; background: transparent; border: 1px solid transparent; font-size: 12px; }
+    .copy-button:hover { color: var(--green); border-color: rgba(110,231,183,.2); background: rgba(16,185,129,.08); }
+
+    .chart-wrap { position: relative; z-index: 1; height: 300px; }
+    canvas { display: block; width: 100%; height: 100%; }
+    .chart-empty { display: grid; place-items: center; height: 100%; color: #8b98ab; font-size: 14px; text-align: center; }
+    .chart-meta { display: flex; justify-content: space-between; gap: 10px; margin-top: 7px; color: #738197; font-size: 11px; }
+
+    .info-card { padding: 25px; }
+    .info-heading { display: flex; gap: 12px; align-items: center; margin-bottom: 23px; }
+    .info-icon { display: grid; place-items: center; width: 40px; height: 40px; border: 1px solid rgba(91,140,255,.28); border-radius: 13px; color: #abc4ff; background: var(--blue-soft); }
+    .info-icon svg { width: 19px; height: 19px; }
+    .info-list { display: grid; gap: 0; }
+    .info-row { display: flex; justify-content: space-between; gap: 18px; padding: 14px 0; border-bottom: 1px solid rgba(148,163,184,.14); color: #9aa8bd; font-size: 14px; }
+    .info-row:last-child { border-bottom: 0; padding-bottom: 0; }
+    .info-row strong { color: var(--text); font-weight: 600; text-align: right; }
+    .available { display: inline-flex; align-items: center; gap: 8px; color: var(--green) !important; }
+    .available::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 12px rgba(110,231,183,.8); }
+
+    .popular { padding: 25px; }
+    .popular-head { display: flex; justify-content: space-between; align-items: end; gap: 14px; margin-bottom: 17px; }
+    .popular-base { color: #8f9db3; font-size: 11px; }
+    .quotes { display: grid; gap: 7px; }
+    .quote { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 12px; border: 1px solid transparent; border-radius: 13px; background: rgba(4,7,15,.2); transition: background .2s ease, border-color .2s ease, transform .2s ease; }
+    .quote:hover { transform: translateX(2px); border-color: rgba(16,185,129,.22); background: rgba(16,185,129,.07); }
+    .quote-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .flag { display: grid; place-items: center; width: 32px; height: 32px; border: 1px solid rgba(91,140,255,.22); border-radius: 10px; color: #c8d6ff; background: rgba(28,52,132,.4); font-size: 9px; font-weight: 750; letter-spacing: .02em; }
+    .quote-code { color: var(--text); font: 700 13px ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .quote-name { margin-top: 2px; color: #8c99ad; font-size: 11px; }
+    .quote-value { color: var(--muted-strong); font: 600 13px ui-monospace, SFMono-Regular, Menlo, monospace; text-align: right; }
+    .muted-note { margin-top: 17px; color: #748198; font-size: 11px; line-height: 1.6; }
+
+    footer { border-top: 1px solid rgba(148,163,184,.14); background: rgba(6,8,18,.65); }
+    .footer-inner { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 24px 0; color: #748198; font-size: 12px; }
+    .footer-inner a { color: #b8c4d6; text-underline-offset: 4px; }
+    .footer-inner a:hover { color: var(--green); }
+
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+    .spin { animation: spin .9s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .fade-in { animation: fade-in .45s ease both; }
+    @keyframes fade-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      .hero { max-width: 700px; }
+    }
+    @media (max-width: 600px) {
+      .shell { width: min(100% - 24px, 560px); }
+      .topbar-inner { min-height: 62px; }
+      .brand-mark { width: 32px; height: 32px; }
+      .brand-title { font-size: 13px; }
+      .brand-subtitle { font-size: 8px; letter-spacing: .17em; }
+      .topbar .button { min-height: 36px; padding: 0 10px; }
+      .topbar .button span { display: none; }
+      main { padding: 35px 0 48px; }
+      .hero { margin-bottom: 27px; }
+      h1 { font-size: clamp(38px, 12vw, 55px); }
+      .hero-copy { margin-top: 15px; font-size: 14px; line-height: 1.7; }
+      .layout, .stack { gap: 18px; }
+      .card-pad, .info-card, .popular { padding: 20px; }
+      .card-header { margin-bottom: 20px; }
+      h2 { font-size: 21px; }
+      .converter-row { grid-template-columns: 1fr; gap: 12px; }
+      .swap { width: 38px; height: 38px; margin: 0 auto; transform: rotate(90deg); }
+      .swap:hover { transform: rotate(90deg) translateY(-1px); }
+      .selectors { gap: 10px; }
+      .rate-line { display: block; line-height: 1.8; }
+      .rate-line time { display: block; margin-top: 3px; }
+      .chart-wrap { height: 235px; }
+      .footer-inner { align-items: flex-start; flex-direction: column; padding: 20px 0; line-height: 1.5; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <a class="brand" href="#top" aria-label="Currency Converter Pro 首頁">
+        <svg class="brand-mark" viewBox="0 0 48 48" aria-hidden="true">
+          <defs><linearGradient id="logoGradient" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#6ee7b7"/><stop offset="1" stop-color="#5b8cff"/></linearGradient></defs>
+          <circle cx="22" cy="24" r="15" fill="none" stroke="url(#logoGradient)" stroke-width="2.2"/>
+          <path d="M7 24h30M10 16h25M10 32h25M22 9c4 4 6 9 6 15s-2 11-6 15M22 9c-4 4-6 9-6 15s2 11 6 15" fill="none" stroke="url(#logoGradient)" stroke-width="1.2" opacity=".82"/>
+          <path d="M29 12h10v10M39 12 26 25" fill="none" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span><span class="brand-title">Currency Converter</span><span class="brand-subtitle">Pro / Global rates</span></span>
+      </a>
+      <button id="refreshButton" class="button button-icon" type="button" title="重新抓取最新匯率" aria-label="重新抓取最新匯率">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8.1 8.1 0 0 0-14.9-3L3 11"/><path d="M3 4v7h7"/><path d="M4 13a8.1 8.1 0 0 0 14.9 3L21 13"/><path d="M21 20v-7h-7"/></svg>
+        <span>更新匯率</span>
+      </button>
+    </div>
+  </header>
+
+  <main id="top">
+    <div class="shell">
+      <section class="hero fade-in">
+        <div class="eyebrow">Live market reference</div>
+        <h1>全球匯率，<span class="accent">精準轉換。</span></h1>
+        <p class="hero-copy">每次開啟自動取得最新工作日匯率，讓旅程預算、跨境付款與全球投資都能快速做出清楚判斷。</p>
+      </section>
+
+      <div id="alert" class="alert" role="alert">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.3 3.3 2.6 17a2 2 0 0 0 1.7 3h15.4a2 2 0 0 0 1.7-3L13.7 3.3a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg>
+        <div><strong>暫時無法同步最新匯率</strong><small id="alertText">請確認網路連線後重新整理。</small></div>
+      </div>
+
+      <div class="layout">
+        <div class="stack">
+          <section class="card card-pad fade-in" aria-labelledby="converterTitle">
+            <div class="card-header">
+              <div><div class="kicker">Instant conversion</div><h2 id="converterTitle">換算你的金額</h2></div>
+              <div id="statusBadge" class="status loading">同步中</div>
+            </div>
+
+            <div class="converter-row">
+              <div class="field"><label for="amount">金額</label><input id="amount" class="input" type="number" min="0" step="any" inputmode="decimal" value="100" placeholder="輸入金額"></div>
+              <button id="swapButton" class="button swap" type="button" aria-label="交換來源與目標貨幣" title="交換貨幣">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m17 3 4 4-4 4"/><path d="M3 7h18"/><path d="m7 21-4-4 4-4"/><path d="M21 17H3"/></svg>
+              </button>
+              <div class="field"><label for="result">結果</label><output id="result" class="result" for="amount">—</output></div>
+            </div>
+
+            <div class="selectors">
+              <div class="field"><label for="baseCurrency">來源貨幣</label><select id="baseCurrency" class="select"></select></div>
+              <div class="field"><label for="targetCurrency">目標貨幣</label><select id="targetCurrency" class="select"></select></div>
+            </div>
+
+            <div class="rate-line"><span>1 <b id="baseCode">USD</b> <span aria-hidden="true">=</span> <strong id="rateValue">—</strong> <b id="targetCode">EUR</b></span><time id="updatedTime">等待首次同步</time></div>
+            <div class="copy-line"><button id="copyButton" class="copy-button" type="button">複製轉換結果</button></div>
+          </section>
+
+          <section class="card card-pad fade-in" aria-labelledby="chartTitle">
+            <div class="card-header" style="margin-bottom: 11px"><div><div class="kicker">Rate movement</div><h2 id="chartTitle">30 天匯率趨勢</h2></div><div class="status" style="color:#abc4ff;border-color:rgba(91,140,255,.28);background:rgba(91,140,255,.12)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 17 6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg></div></div>
+            <div id="chartWrap" class="chart-wrap"><div class="chart-empty">正在載入過去 30 天的匯率…</div><canvas id="chart" aria-label="匯率歷史趨勢圖" role="img"></canvas></div>
+            <div class="chart-meta"><span id="chartStart">—</span><span id="chartEnd">—</span></div>
+          </section>
+        </div>
+
+        <aside class="stack">
+          <section class="card info-card fade-in" aria-labelledby="marketTitle">
+            <div class="info-heading"><div class="info-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.2 2.5 3.2 5.5 3.2 9S14.2 18.5 12 21c-2.2-2.5-3.2-5.5-3.2-9S9.8 5.5 12 3Z"/></svg></div><div><div class="kicker">Global reference</div><h3 id="marketTitle">市場資料狀態</h3></div></div>
+            <div class="info-list"><div class="info-row"><span>涵蓋貨幣</span><strong>201+</strong></div><div class="info-row"><span>資料來源</span><strong>官方央行資料</strong></div><div class="info-row"><span>同步狀態</span><strong id="availability" class="available">更新中</strong></div></div>
+          </section>
+
+          <section class="card popular fade-in" aria-labelledby="popularTitle">
+            <div class="popular-head"><div><div class="kicker">Market watch</div><h3 id="popularTitle">熱門貨幣</h3></div><span class="popular-base">以 <b id="popularBase">USD</b> 計價</span></div>
+            <div id="quotes" class="quotes"></div>
+            <p class="muted-note">匯率依 API 最新工作日資料顯示；市場休市期間不代表即時報價。</p>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <footer><div class="shell footer-inner"><span>精準、清楚、為全球而生。</span><span>匯率資料由 <a href="https://frankfurter.dev" target="_blank" rel="noopener noreferrer">Frankfurter API</a> 提供。<br>由 yixiang1019tw 製作維護 · 保有一切權利</span></div></footer>
+
+  <script>
+    (() => {
+      'use strict';
+      const API = 'https://api.frankfurter.dev/v1';
+      const fallbackAPI = 'https://open.er-api.com/v6/latest/';
+      const popular = [
+        ['EUR', '歐元', 'EU'], ['GBP', '英鎊', 'GB'], ['JPY', '日圓', 'JP'], ['TWD', '新台幣', 'TW'], ['AUD', '澳幣', 'AU']
+      ];
+      const fallbackCurrencyCodes = ["AED","AFN","ALL","AMD","ANG","AOA","ARS","AUD","AWG","AZN","BAM","BBD","BDT","BGN","BHD","BIF","BMD","BND","BOB","BRL","BSD","BTN","BWP","BYN","BZD","CAD","CDF","CHF","CLF","CLP","CNH","CNY","COP","CRC","CUP","CVE","CZK","DJF","DKK","DOP","DZD","EGP","ERN","ETB","EUR","FJD","FKP","FOK","GBP","GEL","GGP","GHS","GIP","GMD","GNF","GTQ","GYD","HKD","HNL","HRK","HTG","HUF","IDR","ILS","IMP","INR","IQD","IRR","ISK","JEP","JMD","JOD","JPY","KES","KGS","KHR","KID","KMF","KRW","KWD","KYD","KZT","LAK","LBP","LKR","LRD","LSL","LYD","MAD","MDL","MGA","MKD","MMK","MNT","MOP","MRU","MUR","MVR","MWK","MXN","MYR","MZN","NAD","NGN","NIO","NOK","NPR","NZD","OMR","PAB","PEN","PGK","PHP","PKR","PLN","PYG","QAR","RON","RSD","RUB","RWF","SAR","SBD","SCR","SDG","SEK","SGD","SHP","SLE","SLL","SOS","SRD","SSP","STN","SYP","SZL","THB","TJS","TMT","TND","TOP","TRY","TTD","TVD","TWD","TZS","UAH","UGX","USD","UYU","UZS","VES","VND","VUV","WST","XAF","XCD","XCG","XDR","XOF","XPF","YER","ZAR","ZMW","ZWG","ZWL"];
+      const zhCurrencyNames = {
+        AED:'阿聯酋迪拉姆', AFN:'阿富汗尼', ALL:'阿爾巴尼亞列克', AMD:'亞美尼亞德拉姆', ANG:'荷屬安的列斯盾', AOA:'安哥拉寬扎', ARS:'阿根廷披索', AUD:'澳幣', AWG:'阿魯巴弗羅林', AZN:'亞塞拜然馬納特', BAM:'波士尼亞可兌換馬克', BBD:'巴貝多元', BDT:'孟加拉塔卡', BGN:'保加利亞列弗', BHD:'巴林第納爾', BIF:'蒲隆地法郎', BMD:'百慕達元', BND:'汶萊元', BOB:'玻利維亞諾', BRL:'巴西雷亞爾', BSD:'巴哈馬元', BTN:'不丹努爾特魯姆', BWP:'波札那普拉', BYN:'白俄羅斯盧布', BZD:'貝里斯元', CAD:'加幣', CDF:'剛果法郎', CHF:'瑞士法郎', CLP:'智利披索', CNY:'人民幣', COP:'哥倫比亞披索', CRC:'哥斯大黎加科朗', CVE:'維德角埃斯庫多', CZK:'捷克克朗', DJF:'吉布地法郎', DKK:'丹麥克朗', DOP:'多明尼加披索', DZD:'阿爾及利亞第納爾', EGP:'埃及鎊', ERN:'厄立特里亞納克法', ETB:'衣索比亞比爾', EUR:'歐元', FJD:'斐濟元', FKP:'福克蘭群島鎊', GBP:'英鎊', GEL:'喬治亞拉里', GHS:'加納塞地', GIP:'直布羅陀鎊', GMD:'甘比亞達拉西', GNF:'幾內亞法郎', GTQ:'瓜地馬拉格查爾', GYD:'蓋亞那元', HKD:'港幣', HNL:'宏都拉斯倫皮拉', HTG:'海地古德', HUF:'匈牙利福林', IDR:'印尼盾', ILS:'以色列新謝克爾', INR:'印度盧比', IQD:'伊拉克第納爾', IRR:'伊朗里亞爾', ISK:'冰島克朗', JMD:'牙買加元', JOD:'約旦第納爾', JPY:'日圓', KES:'肯亞先令', KGS:'吉爾吉斯索姆', KHR:'柬埔寨瑞爾', KMF:'葛摩法郎', KPW:'北韓圓', KRW:'韓元', KWD:'科威特第納爾', KYD:'開曼群島元', KZT:'哈薩克堅戈', LAK:'寮國基普', LBP:'黎巴嫩鎊', LKR:'斯里蘭卡盧比', LRD:'賴比瑞亞元', LSL:'賴索托洛蒂', LYD:'利比亞第納爾', MAD:'摩洛哥迪拉姆', MDL:'摩爾多瓦列伊', MGA:'馬達加斯加阿里亞里', MKD:'北馬其頓第納爾', MMK:'緬甸元', MNT:'蒙古圖格里克', MOP:'澳門幣', MRU:'茅利塔尼亞烏吉亞', MUR:'模里西斯盧比', MVR:'馬爾地夫拉菲亞', MWK:'馬拉威克瓦查', MXN:'墨西哥披索', MYR:'馬來西亞令吉', MZN:'莫三比克梅蒂卡爾', NAD:'納米比亞元', NGN:'奈及利亞奈拉', NIO:'尼加拉瓜科多巴', NOK:'挪威克朗', NPR:'尼泊爾盧比', NZD:'紐西蘭元', OMR:'阿曼里亞爾', PAB:'巴拿馬巴波亞', PEN:'秘魯索爾', PGK:'巴布亞紐幾內亞基那', PHP:'菲律賓披索', PKR:'巴基斯坦盧比', PLN:'波蘭茲羅提', PYG:'巴拉圭瓜拉尼', QAR:'卡達里亞爾', RON:'羅馬尼亞列伊', RSD:'塞爾維亞第納爾', RUB:'俄羅斯盧布', RWF:'盧安達法郎', SAR:'沙烏地里亞爾', SBD:'索羅門群島元', SCR:'塞席爾盧比', SDG:'蘇丹鎊', SEK:'瑞典克朗', SGD:'新加坡元', SHP:'聖赫勒拿鎊', SLL:'獅子山利昂', SOS:'索馬利亞先令', SRD:'蘇利南元', SSP:'南蘇丹鎊', STN:'聖多美普林西比多布拉', SYP:'敘利亞鎊', SZL:'史瓦帝尼里蘭吉尼', THB:'泰銖', TJS:'塔吉克索莫尼', TMT:'土庫曼馬納特', TND:'突尼西亞第納爾', TOP:'東加潘加', TRY:'土耳其里拉', TTD:'千里達及托巴哥元', TWD:'新台幣', TZS:'坦尚尼亞先令', UAH:'烏克蘭格里夫納', UGX:'烏干達先令', USD:'美元', UYU:'烏拉圭披索', UZS:'烏茲別克索姆', VES:'委內瑞拉玻利瓦', VND:'越南盾', VUV:'萬那杜瓦圖', WST:'薩摩亞塔拉', XAF:'中非法郎', XCD:'東加勒比元', XOF:'西非法郎', XPF:'太平洋法郎', YER:'葉門里亞爾', ZAR:'南非蘭特', ZMW:'尚比亞克瓦查', ZWL:'辛巴威元'
+      };
+      const extraZhCurrencyNames = { CLF:'智利發展單位', CNH:'離岸人民幣', CUP:'古巴披索', FOK:'法羅群島克朗', GGP:'根西鎊', HRK:'克羅埃西亞庫納', IMP:'馬恩島鎊', JEP:'澤西鎊', KID:'吉里巴斯元', SLE:'獅子山新利昂', TVD:'吐瓦魯元', XCG:'加勒比盾', XDR:'特別提款權', ZWG:'津巴布韋金' };
+      const state = { base: 'USD', target: 'EUR', amount: 100, rates: {}, history: [], currencyNames: {} };
+      const $ = (id) => document.getElementById(id);
+      const els = {
+        amount: $('amount'), base: $('baseCurrency'), target: $('targetCurrency'), result: $('result'), rate: $('rateValue'),
+        baseCode: $('baseCode'), targetCode: $('targetCode'), updated: $('updatedTime'), status: $('statusBadge'),
+        availability: $('availability'), alert: $('alert'), alertText: $('alertText'), refresh: $('refreshButton'), swap: $('swapButton'),
+        copy: $('copyButton'), quotes: $('quotes'), popularBase: $('popularBase'), chart: $('chart'), chartWrap: $('chartWrap'),
+        chartStart: $('chartStart'), chartEnd: $('chartEnd')
+      };
+
+      const escapeHtml = (value) => String(value).replace(/[&<>'"]/g, (char) => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' }[char]));
+      const formatNumber = (value, digits = 2) => Number(value || 0).toLocaleString('zh-TW', { minimumFractionDigits: digits, maximumFractionDigits: digits });
+      const formatDate = (value) => new Date(value + 'T00:00:00').toLocaleDateString('zh-TW', { month: 'numeric', day: 'numeric' });
+      const setLoading = (loading) => {
+        els.status.textContent = loading ? '同步中' : '已同步';
+        els.status.classList.toggle('loading', loading);
+        els.availability.textContent = loading ? '更新中' : '可用';
+        els.refresh.disabled = loading;
+        els.refresh.querySelector('svg').classList.toggle('spin', loading);
+      };
+      const showAlert = (message) => { els.alertText.textContent = message; els.alert.classList.add('visible'); };
+      const hideAlert = () => els.alert.classList.remove('visible');
+
+      function getCurrencyLabel(code) {
+        return zhCurrencyNames[code] || extraZhCurrencyNames[code] || state.currencyNames[code] || '其他貨幣';
+      }
+
+      function fillSelects(codes) {
+        const sorted = [...new Set(codes)].sort();
+        [els.base, els.target].forEach((select) => {
+          select.innerHTML = sorted.map((code) => `<option value="${escapeHtml(code)}">${escapeHtml(getCurrencyLabel(code))}（${escapeHtml(code)}）</option>`).join('');
+        });
+        els.base.value = state.base;
+        els.target.value = state.target;
+      }
+
+      function renderQuotes() {
+        els.popularBase.textContent = state.base;
+        els.quotes.innerHTML = popular.map(([code, name, flag]) => {
+          const value = state.rates[code];
+          const valueText = typeof value === 'number' ? formatNumber(value, 4) : '暫無資料';
+          return `<div class="quote"><div class="quote-left"><span class="flag">${flag}</span><div><div class="quote-code">${code}</div><div class="quote-name">${name}</div></div></div><span class="quote-value">${valueText}</span></div>`;
+        }).join('');
+      }
+
+      function renderConversion() {
+        const rawAmount = Number(els.amount.value);
+        state.amount = Number.isFinite(rawAmount) ? rawAmount : 0;
+        const rate = Number(state.rates[state.target]);
+        const result = Number.isFinite(rate) ? state.amount * rate : NaN;
+        els.baseCode.textContent = state.base;
+        els.targetCode.textContent = state.target;
+        els.rate.textContent = Number.isFinite(rate) ? formatNumber(rate, 4) : '—';
+        els.result.textContent = Number.isFinite(result) ? formatNumber(result, 2) : '—';
+        renderQuotes();
+      }
+
+      function drawChart() {
+        const canvas = els.chart;
+        const wrap = els.chartWrap;
+        if (!state.history.length) {
+          canvas.style.display = 'none';
+          wrap.querySelector('.chart-empty').textContent = '目前無法取得歷史匯率資料。';
+          wrap.querySelector('.chart-empty').style.display = 'grid';
+          els.chartStart.textContent = '—'; els.chartEnd.textContent = '—';
+          return;
+        }
+        const points = state.history.filter((row) => Number.isFinite(row.rate));
+        if (!points.length) { canvas.style.display = 'none'; return; }
+        const empty = wrap.querySelector('.chart-empty');
+        empty.style.display = 'none'; canvas.style.display = 'block';
+        const rect = canvas.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        const width = Math.max(300, rect.width); const height = Math.max(180, rect.height);
+        canvas.width = Math.round(width * dpr); canvas.height = Math.round(height * dpr);
+        const ctx = canvas.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        const pad = { top: 20, right: 10, bottom: 28, left: 42 };
+        const plotW = width - pad.left - pad.right; const plotH = height - pad.top - pad.bottom;
+        const values = points.map((p) => p.rate); const min = Math.min(...values); const max = Math.max(...values); const spread = Math.max(max - min, max * .002); const low = min - spread * .18; const high = max + spread * .18;
+        const x = (i) => pad.left + (i / Math.max(points.length - 1, 1)) * plotW; const y = (value) => pad.top + (1 - (value - low) / (high - low)) * plotH;
+        ctx.clearRect(0, 0, width, height);
+        ctx.strokeStyle = 'rgba(148,163,184,.16)'; ctx.lineWidth = 1; ctx.fillStyle = 'rgba(154,168,189,.74)'; ctx.font = '11px ui-monospace, monospace';
+        for (let i = 0; i < 4; i++) { const yy = pad.top + (plotH / 3) * i; ctx.beginPath(); ctx.moveTo(pad.left, yy); ctx.lineTo(width - pad.right, yy); ctx.stroke(); ctx.fillText((high - (high - low) * i / 3).toFixed(3), 0, yy + 4); }
+        const gradient = ctx.createLinearGradient(0, pad.top, 0, height); gradient.addColorStop(0, 'rgba(16,185,129,.32)'); gradient.addColorStop(1, 'rgba(16,185,129,.015)');
+        ctx.beginPath(); points.forEach((point, i) => { const px = x(i), py = y(point.rate); if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py); }); ctx.lineTo(x(points.length - 1), pad.top + plotH); ctx.lineTo(x(0), pad.top + plotH); ctx.closePath(); ctx.fillStyle = gradient; ctx.fill();
+        ctx.beginPath(); points.forEach((point, i) => { const px = x(i), py = y(point.rate); if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py); }); ctx.strokeStyle = '#10b981'; ctx.lineWidth = 2.5; ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.stroke();
+        ctx.fillStyle = 'rgba(154,168,189,.74)'; ctx.font = '11px Inter, sans-serif'; const labels = [0, Math.floor((points.length - 1) / 3), Math.floor((points.length - 1) * 2 / 3), points.length - 1]; labels.forEach((index) => { const label = formatDate(points[index].date); ctx.fillText(label, Math.max(pad.left, x(index) - 13), height - 6); });
+        els.chartStart.textContent = `${state.base}/${state.target}`; els.chartEnd.textContent = `${formatDate(points[points.length - 1].date)} 最新工作日資料`;
+      }
+
+      async function fetchLatest() {
+        setLoading(true); hideAlert();
+        try {
+          const response = await fetch(`${fallbackAPI}${encodeURIComponent(state.base)}`, { mode: 'cors', cache: 'no-store' });
+          if (!response.ok) throw new Error('exchange-rate-api');
+          const data = await response.json();
+          if (data.result !== 'success') throw new Error('exchange-rate-api-result');
+          state.rates = { [state.base]: 1, ...(data.rates || {}) };
+          els.updated.textContent = `本次同步 ${new Date().toLocaleTimeString('zh-TW')}`;
+        } catch (primaryError) {
+          try {
+            const response = await fetch(`${API}/latest?base=${encodeURIComponent(state.base)}`, { mode: 'cors', cache: 'no-store' });
+            if (!response.ok) throw new Error('frankfurter');
+            const data = await response.json();
+            state.rates = { [state.base]: 1, ...(data.rates || {}) };
+            els.updated.textContent = `備援同步 ${new Date().toLocaleTimeString('zh-TW')}`;
+            showAlert('全球匯率來源暫時無回應，已切換至備援資料來源。');
+          } catch (fallbackError) {
+            state.rates = {};
+            showAlert('請確認網路連線後再按「更新匯率」。');
+          }
+        } finally {
+          setLoading(false); renderConversion(); await fetchHistory();
+        }
+      }
+
+      async function fetchHistory() {
+        try {
+          const end = new Date(); const start = new Date(); start.setDate(start.getDate() - 30);
+          const iso = (date) => date.toISOString().slice(0, 10);
+          const response = await fetch(`${API}/${iso(start)}..${iso(end)}?base=${encodeURIComponent(state.base)}&symbols=${encodeURIComponent(state.target)}`, { mode: 'cors', cache: 'no-store' });
+          if (!response.ok) throw new Error('history');
+          const data = await response.json();
+          state.history = Object.entries(data.rates || {}).map(([date, rates]) => ({ date, rate: Number(rates[state.target]) }));
+          drawChart();
+        } catch (error) {
+          state.history = []; drawChart();
+        }
+      }
+
+      async function loadCurrencies() {
+        let allCodes = [...fallbackCurrencyCodes];
+        try {
+          const namesResponse = await fetch(`${API}/currencies`, { mode: 'cors', cache: 'no-store' });
+          if (namesResponse.ok) state.currencyNames = await namesResponse.json();
+        } catch (error) {
+          state.currencyNames = {};
+        }
+        try {
+          const ratesResponse = await fetch(`${fallbackAPI}USD`, { mode: 'cors', cache: 'no-store' });
+          if (ratesResponse.ok) {
+            const ratesData = await ratesResponse.json();
+            allCodes = [...new Set([...allCodes, ...Object.keys(ratesData.rates || {})])].sort();
+          }
+        } catch (error) {
+          // The embedded complete catalog remains the fallback for file:// usage or offline mode.
+        }
+        fillSelects(allCodes);
+      }
+
+      function initEvents() {
+        els.amount.addEventListener('input', renderConversion);
+        els.base.addEventListener('change', async () => { state.base = els.base.value; renderConversion(); await fetchLatest(); });
+        els.target.addEventListener('change', async () => { state.target = els.target.value; renderConversion(); await fetchHistory(); });
+        els.refresh.addEventListener('click', fetchLatest);
+        els.swap.addEventListener('click', async () => { const oldBase = state.base; state.base = state.target; state.target = oldBase; els.base.value = state.base; els.target.value = state.target; await fetchLatest(); });
+        els.copy.addEventListener('click', async () => { const text = `${els.amount.value || 0} ${state.base} = ${els.result.textContent} ${state.target}`; try { await navigator.clipboard.writeText(text); els.copy.textContent = '已複製'; setTimeout(() => { els.copy.textContent = '複製轉換結果'; }, 1400); } catch { els.copy.textContent = '請手動複製'; setTimeout(() => { els.copy.textContent = '複製轉換結果'; }, 1400); } });
+        window.addEventListener('resize', drawChart);
+      }
+
+      async function init() { fillSelects(fallbackCurrencyCodes); initEvents(); await loadCurrencies(); await fetchLatest(); }
+      init();
+    })();
+  </script>
+</body>
+</html>
